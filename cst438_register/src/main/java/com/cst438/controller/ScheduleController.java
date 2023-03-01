@@ -22,6 +22,7 @@ import com.cst438.domain.Enrollment;
 import com.cst438.domain.EnrollmentRepository;
 import com.cst438.domain.ScheduleDTO;
 import com.cst438.domain.Student;
+import com.cst438.domain.StudentDTO;
 import com.cst438.domain.StudentRepository;
 import com.cst438.service.GradebookService;
 
@@ -117,6 +118,61 @@ public class ScheduleController {
 		}
 	}
 	
+	@PostMapping("/addStudent")
+	@Transactional
+	public StudentDTO addStudent( @RequestBody StudentDTO student) { 
+
+		String student_email = student.email;
+		String student_name = student.name;
+		
+		Student existingStudent = studentRepository.findByEmail(student_email);
+		
+		if (existingStudent != null) {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already exists.  "+student.name + " " + student.email);
+		} else {
+//			System.out.println(student.toString());
+			Student newStudent = new Student();
+			newStudent.setEmail(student.email);
+			newStudent.setName(student.name);
+			newStudent.setStatus(student.status);
+			newStudent.setStatusCode(student.statusCode);
+			Student savedStudent = studentRepository.save(newStudent);
+			
+			StudentDTO result = createStudentDTO(savedStudent);
+			return result;
+		}
+		
+	}
+	
+	@PostMapping("/putStudentHold")
+	@Transactional
+	public StudentDTO placeHold( @RequestBody StudentDTO student) { 
+
+		String student_email = student.email;
+		String student_name = student.name;
+		
+		Student existingStudent = studentRepository.findByEmail(student_email);
+		if (existingStudent == null) {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student cannot be found with "+student.name + " " + student.email);
+		} else {
+			if(existingStudent.getStatusCode() == 1) {
+				throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already has hold in place with "+student.name + " " + student.email);
+			} else {
+				Student newStudent = new Student();
+				newStudent.setStudent_id(student.student_id);
+				newStudent.setEmail(student.email);
+				newStudent.setName(student.name);
+				newStudent.setStatus(student.status);
+				newStudent.setStatusCode(student.statusCode);
+				Student savedStudent = studentRepository.save(newStudent);
+				
+				StudentDTO result = createStudentDTO(savedStudent);
+				return result;
+			}
+		}
+		
+	}
+	
 	/* 
 	 * helper method to transform course, enrollment, student entities into 
 	 * a an instance of ScheduleDTO to return to front end.
@@ -153,6 +209,16 @@ public class ScheduleController {
 		courseDTO.title = c.getTitle();
 		courseDTO.grade = e.getCourseGrade();
 		return courseDTO;
+	}
+	
+	private StudentDTO createStudentDTO(Student e) {
+		StudentDTO studentDTO = new StudentDTO();
+		studentDTO.student_id = e.getStudent_id();
+		studentDTO.email = e.getEmail();
+		studentDTO.name = e.getName();
+		studentDTO.status = e.getStatus();
+		studentDTO.statusCode = e.getStatusCode();
+		return studentDTO;
 	}
 	
 }
