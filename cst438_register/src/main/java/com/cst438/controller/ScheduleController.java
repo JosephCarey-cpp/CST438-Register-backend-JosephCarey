@@ -206,7 +206,7 @@ public class ScheduleController {
 		return courseDTO;
 	}
 	
-	private StudentDTO createStudentDTO(Student e) {
+	public static StudentDTO createStudentDTO(Student e) {
 		StudentDTO studentDTO = new StudentDTO();
 		studentDTO.student_id = e.getStudent_id();
 		studentDTO.email = e.getEmail();
@@ -215,5 +215,6 @@ public class ScheduleController {
 		studentDTO.statusCode = e.getStatusCode();
 		return studentDTO;
 	}
+	
 	
 }
