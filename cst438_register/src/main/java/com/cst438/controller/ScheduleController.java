@@ -144,7 +144,7 @@ public class ScheduleController {
 		
 	}
 	
-	@PostMapping("/putStudentHold")
+	@PostMapping("/changeStudentHold")
 	@Transactional
 	public StudentDTO placeHold( @RequestBody StudentDTO student) { 
 
@@ -158,15 +158,10 @@ public class ScheduleController {
 			if(existingStudent.getStatusCode() == 1) {
 				throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already has hold in place with "+student.name + " " + student.email);
 			} else {
-				Student newStudent = new Student();
-				newStudent.setStudent_id(student.student_id);
-				newStudent.setEmail(student.email);
-				newStudent.setName(student.name);
-				newStudent.setStatus(student.status);
-				newStudent.setStatusCode(student.statusCode);
-				Student savedStudent = studentRepository.save(newStudent);
+				existingStudent.setStatus(student.status);
+				existingStudent.setStatusCode(student.statusCode);
 				
-				StudentDTO result = createStudentDTO(savedStudent);
+				StudentDTO result = createStudentDTO(existingStudent);
 				return result;
 			}
 		}
