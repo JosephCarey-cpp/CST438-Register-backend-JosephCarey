@@ -144,30 +144,49 @@ public class ScheduleController {
 		
 	}
 	
-	@PostMapping("/changeStudentHold")
-	@Transactional
-	public StudentDTO placeHold( @RequestBody StudentDTO student) { 
-
-		String student_email = student.email;
-		String student_name = student.name;
-		
+	@GetMapping("/placeStudentHold/{student_email}")
+	public StudentDTO placeHold( @PathVariable String student_email) { 
+		int status_code = 1;
 		Student existingStudent = studentRepository.findByEmail(student_email);
 		if (existingStudent == null) {
-			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student cannot be found with "+student.name + " " + student.email);
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student cannot be found " + student_email);
 		} else {
-			if(existingStudent.getStatusCode() == 1) {
-				throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already has hold in place with "+student.name + " " + student.email);
+			if(existingStudent.getStatusCode() == status_code) {
+				throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already has status code in place with "+student_email+ " " + status_code);
 			} else {
-				existingStudent.setStatus(student.status);
-				existingStudent.setStatusCode(student.statusCode);
 				
-				StudentDTO result = createStudentDTO(existingStudent);
+				existingStudent.setStatus("HOLD");					
+				existingStudent.setStatusCode(status_code);
+				
+				Student savedStudent = studentRepository.save(existingStudent);
+				
+				StudentDTO result = createStudentDTO(savedStudent);
 				return result;
 			}
 		}
 		
 	}
-	
+	@GetMapping("/removeStudentHold/{student_email}")
+	public StudentDTO removeHold( @PathVariable String student_email) { 
+		int status_code = 0;
+		Student existingStudent = studentRepository.findByEmail(student_email);
+		if (existingStudent == null) {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student cannot be found " + student_email);
+		} else {
+			if(existingStudent.getStatusCode() == status_code) {
+				throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already has status code in place with "+student_email+ " " + status_code);
+			} else {
+				existingStudent.setStatus("");
+				existingStudent.setStatusCode(status_code);
+				Student savedStudent = studentRepository.save(existingStudent);
+				
+				StudentDTO result = createStudentDTO(savedStudent);
+				return result;
+				
+			}
+		}
+		
+	}
 	/* 
 	 * helper method to transform course, enrollment, student entities into 
 	 * a an instance of ScheduleDTO to return to front end.

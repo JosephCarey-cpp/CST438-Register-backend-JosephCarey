@@ -44,7 +44,7 @@ class Cst4380wRegistrationApplicationTests {
 	
 	
 	@Test
-	void contextLoads() throws Exception {
+	void addStudent() throws Exception {
 		MockHttpServletResponse response;
 		
 		Student testStudent = new Student();
