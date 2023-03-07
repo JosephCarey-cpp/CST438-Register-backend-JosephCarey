@@ -22,6 +22,7 @@ import com.cst438.domain.Enrollment;
 import com.cst438.domain.EnrollmentRepository;
 import com.cst438.domain.ScheduleDTO;
 import com.cst438.domain.Student;
+import com.cst438.domain.StudentDTO;
 import com.cst438.domain.StudentRepository;
 import com.cst438.service.GradebookService;
 
@@ -117,6 +118,72 @@ public class ScheduleController {
 		}
 	}
 	
+	@GetMapping("/addStudent")
+	public Student addStudent( @RequestParam String email, @RequestParam String name) { 
+
+		String student_email = email;
+		String student_name = name;
+		
+		Student existingStudent = studentRepository.findByEmail(student_email);
+//		System.out.println("DEBUG:"+existingStudent.toString());
+		if (existingStudent.getEmail() == student_email) {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already exists.  "+name + " " + email);
+		} else {
+//			System.out.println(student.toString());
+			Student newStudent = new Student();
+			newStudent.setEmail(email);
+			newStudent.setName(name);
+			Student savedStudent = studentRepository.save(newStudent);
+			
+//			StudentDTO result = createStudentDTO(savedStudent);
+			return savedStudent;
+		}
+		
+	}
+	
+	@GetMapping("/placeStudentHold/{student_email}")
+	public StudentDTO placeHold( @PathVariable String student_email) { 
+		int status_code = 1;
+		Student existingStudent = studentRepository.findByEmail(student_email);
+		if (existingStudent == null) {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student cannot be found " + student_email);
+		} else {
+			if(existingStudent.getStatusCode() == status_code) {
+				throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already has status code in place with "+student_email+ " " + status_code);
+			} else {
+				
+				existingStudent.setStatus("HOLD");					
+				existingStudent.setStatusCode(status_code);
+				
+				Student savedStudent = studentRepository.save(existingStudent);
+				
+				StudentDTO result = createStudentDTO(savedStudent);
+				return result;
+			}
+		}
+		
+	}
+	@GetMapping("/removeStudentHold/{student_email}")
+	public StudentDTO removeHold( @PathVariable String student_email) { 
+		int status_code = 0;
+		Student existingStudent = studentRepository.findByEmail(student_email);
+		if (existingStudent == null) {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student cannot be found " + student_email);
+		} else {
+			if(existingStudent.getStatusCode() == status_code) {
+				throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already has status code in place with "+student_email+ " " + status_code);
+			} else {
+				existingStudent.setStatus("");
+				existingStudent.setStatusCode(status_code);
+				Student savedStudent = studentRepository.save(existingStudent);
+				
+				StudentDTO result = createStudentDTO(savedStudent);
+				return result;
+				
+			}
+		}
+		
+	}
 	/* 
 	 * helper method to transform course, enrollment, student entities into 
 	 * a an instance of ScheduleDTO to return to front end.
@@ -154,5 +221,17 @@ public class ScheduleController {
 		courseDTO.grade = e.getCourseGrade();
 		return courseDTO;
 	}
+	
+	public static StudentDTO createStudentDTO(Student e) {
+		StudentDTO studentDTO = new StudentDTO();
+//		studentDTO.student_id = e.getStudent_id();
+//		System.out.println("DEBUG: "+e.getEmail());
+		studentDTO.email = e.getEmail();
+		studentDTO.name = e.getName();
+		studentDTO.status = e.getStatus();
+		studentDTO.statusCode = e.getStatusCode();
+		return studentDTO;
+	}
+	
 	
 }
