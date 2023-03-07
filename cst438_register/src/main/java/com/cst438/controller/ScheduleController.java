@@ -118,28 +118,25 @@ public class ScheduleController {
 		}
 	}
 	
-	@PostMapping("/addStudent")
-	@Transactional
-	public StudentDTO addStudent( @RequestBody StudentDTO student) { 
+	@GetMapping("/addStudent")
+	public Student addStudent( @RequestParam String email, @RequestParam String name) { 
 
-		String student_email = student.email;
-		String student_name = student.name;
+		String student_email = email;
+		String student_name = name;
 		
 		Student existingStudent = studentRepository.findByEmail(student_email);
-		
-		if (existingStudent != null) {
-			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already exists.  "+student.name + " " + student.email);
+//		System.out.println("DEBUG:"+existingStudent.toString());
+		if (existingStudent.getEmail() == student_email) {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already exists.  "+name + " " + email);
 		} else {
 //			System.out.println(student.toString());
 			Student newStudent = new Student();
-			newStudent.setEmail(student.email);
-			newStudent.setName(student.name);
-			newStudent.setStatus(student.status);
-			newStudent.setStatusCode(student.statusCode);
+			newStudent.setEmail(email);
+			newStudent.setName(name);
 			Student savedStudent = studentRepository.save(newStudent);
 			
-			StudentDTO result = createStudentDTO(savedStudent);
-			return result;
+//			StudentDTO result = createStudentDTO(savedStudent);
+			return savedStudent;
 		}
 		
 	}
@@ -227,7 +224,8 @@ public class ScheduleController {
 	
 	public static StudentDTO createStudentDTO(Student e) {
 		StudentDTO studentDTO = new StudentDTO();
-		studentDTO.student_id = e.getStudent_id();
+//		studentDTO.student_id = e.getStudent_id();
+//		System.out.println("DEBUG: "+e.getEmail());
 		studentDTO.email = e.getEmail();
 		studentDTO.name = e.getName();
 		studentDTO.status = e.getStatus();

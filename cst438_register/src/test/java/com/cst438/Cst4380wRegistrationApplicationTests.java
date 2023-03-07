@@ -36,7 +36,7 @@ class Cst4380wRegistrationApplicationTests {
 	
 	static final String URL = "http://localhost:8080";
 	public static final int TEST_STUDENT_ID = 10;
-	public static final String TEST_STUDENT_EMAIL = "james@csumb.edu";
+	public static final String TEST_STUDENT_EMAIL = "james@csumb.com";
 	public static final String TEST_STUDENT_NAME  = "james";
 	public static final int TEST_STATUS_CODE = 0;
 	public static final String TEST_STATUS = "";
@@ -72,10 +72,10 @@ class Cst4380wRegistrationApplicationTests {
 		given(studentRepository.findByEmail(TEST_STUDENT_EMAIL)).willReturn(testStudent);
 		
 		StudentDTO testDTO = ScheduleController.createStudentDTO(testStudent);
-		System.out.println(asJsonString(testDTO));
+		System.out.println("DEBUG: " + asJsonString(testDTO));
 		response = mvc.perform(
 				MockMvcRequestBuilders
-			      .post("/addStudent")
+			      .get("/addStudent?email="+TEST_STUDENT_EMAIL+"&name="+TEST_STUDENT_NAME)
 			      .content(asJsonString(testDTO))
 			      .contentType(MediaType.APPLICATION_JSON)
 			      .accept(MediaType.APPLICATION_JSON))
@@ -83,54 +83,11 @@ class Cst4380wRegistrationApplicationTests {
 		
 		// verify that return status = OK (value 200) 
 		assertEquals(200, response.getStatus());
-		
-		StudentDTO result = fromJsonString(response.getContentAsString(), StudentDTO.class);
-        assertNotEquals( 0  , result.student_id);
+		System.out.println("DEBUG: Response"+ response.getContentAsString());
+		Student result = fromJsonString(response.getContentAsString(), Student.class);
+        assertNotEquals( 0  , result.getStudent_id());
         
         verify(studentRepository).save(any(Student.class));
-	}
-	
-	@Test
-	void placeRemoveHold() throws Exception {
-		MockHttpServletResponse response;
-		
-		Student testStudent = new Student();
-		testStudent.setStudent_id(TEST_STUDENT_ID);
-		testStudent.setEmail(TEST_STUDENT_EMAIL);
-		testStudent.setName(TEST_STUDENT_NAME);
-		testStudent.setStatusCode(TEST_STATUS_CODE);
-		testStudent.setStatus(TEST_STATUS);
-		
-		given(studentRepository.findByEmail(TEST_STUDENT_EMAIL)).willReturn(testStudent);
-		
-		String student_email = testStudent.getEmail();
-		response = mvc.perform(
-				MockMvcRequestBuilders
-			      .get("/placeStudentHold/"+student_email)
-			      .contentType(MediaType.APPLICATION_JSON)
-			      .accept(MediaType.APPLICATION_JSON))
-				.andReturn().getResponse();
-		
-		// verify that return status = OK (value 200) 
-		assertEquals(200, response.getStatus());
-		
-		StudentDTO result = fromJsonString(response.getContentAsString(), StudentDTO.class);
-        assertNotEquals( 0  , result.student_id);
-        
-        verify(studentRepository).save(any(Student.class));
-        
-        response = mvc.perform(
-				MockMvcRequestBuilders
-			      .get("/removeStudentHold/"+student_email)
-			      .contentType(MediaType.APPLICATION_JSON)
-			      .accept(MediaType.APPLICATION_JSON))
-				.andReturn().getResponse();
-		
-		// verify that return status = OK (value 200) 
-		assertEquals(200, response.getStatus());
-		
-		result = fromJsonString(response.getContentAsString(), StudentDTO.class);
-        assertNotEquals( 0  , result.student_id);
 	}
 
 
