@@ -25,6 +25,7 @@ import com.cst438.domain.Student;
 import com.cst438.domain.StudentDTO;
 import com.cst438.domain.StudentRepository;
 import com.cst438.service.GradebookService;
+import com.cst438.service.GradebookServiceREST;
 
 @RestController
 @CrossOrigin(origins = {"http://localhost:3000", "https://registerf-cst438.herokuapp.com/"})
@@ -69,7 +70,8 @@ public class ScheduleController {
 	@PostMapping("/schedule")
 	@Transactional
 	public ScheduleDTO.CourseDTO addCourse( @RequestBody ScheduleDTO.CourseDTO courseDTO  ) { 
-
+		
+		
 		String student_email = "test@csumb.edu";   // student's email 
 		
 		Student student = studentRepository.findByEmail(student_email);
@@ -118,6 +120,7 @@ public class ScheduleController {
 		}
 	}
 	
+	
 	@GetMapping("/addStudent")
 	public Student addStudent( @RequestParam String email, @RequestParam String name) { 
 
@@ -125,18 +128,18 @@ public class ScheduleController {
 		String student_name = name;
 		
 		Student existingStudent = studentRepository.findByEmail(student_email);
-//		System.out.println("DEBUG:"+existingStudent.toString());
-		if (existingStudent.getEmail() == student_email) {
-			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already exists.  "+name + " " + email);
-		} else {
-//			System.out.println(student.toString());
+		System.out.println("DEBUG:"+studentRepository.toString());
+		if (existingStudent == null || !existingStudent.getEmail().equals(student_email)) {
 			Student newStudent = new Student();
-			newStudent.setEmail(email);
-			newStudent.setName(name);
+			newStudent.setEmail(student_email);
+			newStudent.setName(student_name);
 			Student savedStudent = studentRepository.save(newStudent);
-			
+			GradebookServiceREST gradebookREST = new GradebookServiceREST();
 //			StudentDTO result = createStudentDTO(savedStudent);
 			return savedStudent;
+		} else {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student already exists.  "+student_name + " " + student_email);
+//			System.out.println(student.toString());
 		}
 		
 	}

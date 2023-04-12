@@ -36,8 +36,8 @@ class Cst4380wRegistrationApplicationTests {
 	
 	static final String URL = "http://localhost:8080";
 	public static final int TEST_STUDENT_ID = 10;
-	public static final String TEST_STUDENT_EMAIL = "james@csumb.com";
-	public static final String TEST_STUDENT_NAME  = "james";
+	public static final String TEST_STUDENT_EMAIL = "thirdName.com";
+	public static final String TEST_STUDENT_NAME  = "thirdTimesTheCharm";
 	public static final int TEST_STATUS_CODE = 0;
 	public static final String TEST_STATUS = "";
 
@@ -69,10 +69,9 @@ class Cst4380wRegistrationApplicationTests {
 		testStudent.setStatusCode(TEST_STATUS_CODE);
 		testStudent.setStatus(TEST_STATUS);
 		
-		given(studentRepository.findByEmail(TEST_STUDENT_EMAIL)).willReturn(testStudent);
-		
+//		System.out.println("DEBUG: " + studentRepository.findByEmail(TEST_STUDENT_EMAIL));
 		StudentDTO testDTO = ScheduleController.createStudentDTO(testStudent);
-		System.out.println("DEBUG: " + asJsonString(testDTO));
+//		System.out.println("DEBUG: " + asJsonString(testDTO));
 		response = mvc.perform(
 				MockMvcRequestBuilders
 			      .get("/addStudent?email="+TEST_STUDENT_EMAIL+"&name="+TEST_STUDENT_NAME)
