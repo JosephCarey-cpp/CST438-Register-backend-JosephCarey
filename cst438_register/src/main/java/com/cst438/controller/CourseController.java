@@ -26,7 +26,7 @@ public class CourseController {
 	@Autowired
 	EnrollmentRepository enrollmentRepository;
 	
-	
+	//
 	/*
 	 * endpoint used by gradebook service to transfer final course grades
 	 */
