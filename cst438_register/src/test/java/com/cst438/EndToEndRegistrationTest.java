@@ -33,7 +33,7 @@ public class EndToEndRegistrationTest {
 	public static final String TEST_USER_EMAIL_FIRST = "manualTest@csumb.edu";
 	public static final String TEST_USER_EMAIL_SECOND = "automaticTest@csumb.edu";
 	
-	
+	// updating remote
 	
 	@Autowired
 	CourseRepository courseRepository;
